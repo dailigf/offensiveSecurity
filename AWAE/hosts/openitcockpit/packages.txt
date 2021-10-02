@@ -1,0 +1,4 @@
+https://openitcockpit/js/vendor/gridstack
+https://openitcockpit/js/vendor/UUID.js-4.0.3
+https://openitcockpit/js/vendor/lodash
+https://openitcockpit/js/vendor/bootstrap-daterangepicker
