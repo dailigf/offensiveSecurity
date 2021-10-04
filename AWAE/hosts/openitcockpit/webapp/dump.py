@@ -33,5 +33,5 @@ if __name__ == "__main__":
         print("{}".format(l[0]))
         content = get_content(l[0], conn)
         print("content[0]:{}".format(content[0][0]))
-        write_to_file(l[0], '\n'.join("{}".format(x[0]) for x in content))
+        write_to_file(l[0], content[0][0])
 

