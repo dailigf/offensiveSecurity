@@ -36,10 +36,9 @@ def on_message(ws, message):
     elif mes["type"] == "connection":
         print("[+] Connected")
     elif mes["type"] == "response":
-        #print(mes["payload"], end = '')
-        print(mes)
+        print(mes["payload"], end = '')
     else:
-        print(mes)
+        pass
 
 
 def on_error(ws, error):

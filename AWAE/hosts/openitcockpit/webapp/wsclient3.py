@@ -18,6 +18,7 @@ def handler(message):
     global key
 
     if "uniqid" in message:
+        print(f"Connection established")
         uniqid = message["uniqid"]
 
 def toJson(task, data):
@@ -30,6 +31,7 @@ def toJson(task, data):
             "key": key
             }
 
+    print(f"sending message: {json.dumps(req)}")
     return json.dumps(req)
 
 async def test(url):
@@ -44,23 +46,21 @@ async def test(url):
 
     while True:
         cmd = input("Enter a Command: ")
-        print(f"Trying: {cmd}", end="\r") #print and wipe
+        prefix = f"./check_http -I 192.168.119.120 -p 8080 -k 'test -c '{cmd}"
+        #print(f"Trying: {prefix}") #print and wipe
         async with websockets.connect(url, ssl=ssl_context) as ws:
+            await ws.send(toJson('execute_nagios_command', 'hello'))
             response = json.loads(await ws.recv())
             handler(response)
-            await ws.send(toJson('execute_nagios_command', cmd))
-            counter = 0
+            await ws.send(toJson('execute_nagios_command', prefix))
+            response = json.loads(await ws.recv())
             while True:
-                response = json.loads(await ws.recv())
                 try:
-                    if uniqid == response["uniqid"]:
-                        if "Forbidden" in response["payload"]:
-                            break
-                        else:
-                            while response["payload"] != "done":
-                                print(response["payload"], end='')
-                                response = json.loads(await ws.recv())
-                            break
+                    if response["type"] == "response":
+                        while response["payload"] != "done":
+                            print(response["payload"])
+                            response = json.loads(await ws.recv())
+                        break
                 except KeyError:
                     pass
         await ws.close()

