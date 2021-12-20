@@ -1,0 +1,7 @@
+erpnet/
+APP-INF/
+META-INF/
+java-random/
+*.war
+*.ear
+*.jar

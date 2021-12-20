@@ -1,0 +1,6 @@
+fineuploader
+gridstack
+UUID.js-4.0.3
+lodash
+gauge
+bootstrap-daterangepicker
